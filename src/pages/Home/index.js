@@ -1,11 +1,12 @@
 import React from 'react';
 import {View, Text} from 'react-native';
+import {Container} from './styles';
 
 function Home() {
   return (
-    <View>
-      <Text style={{color: 'red'}}>Tela Home</Text>
-    </View>
+    <Container>
+      <Text>Tela Home</Text>
+    </Container>
   );
 }
 
