@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, ScrollView} from 'react-native';
 import {
   Container,
@@ -10,11 +10,56 @@ import {
   BannerButton,
   SliderMovies,
 } from './styles';
+import api, {key} from '../../services/api';
+import {getListMovies} from '../../utils/movies';
 import Header from '../../components/Header';
 import SliderItem from '../../components/SliderItem';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function Home() {
+  const [nowMovies, setNowMovies] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [topMovies, setTopMovies] = useState([]);
+
+  const getMovies = async () => {
+    let isActive = true;
+    const [nowData, popularData, topData] = await Promise.all([
+      api.get('/movie/now_playing', {
+        params: {
+          api_key: key,
+          language: 'pt-BR',
+          page: 1,
+        },
+      }),
+      api.get('/movie/popular', {
+        params: {
+          api_key: key,
+          language: 'pt-BR',
+          page: 1,
+        },
+      }),
+      api.get('/movie/top_rated', {
+        params: {
+          api_key: key,
+          language: 'pt-BR',
+          page: 1,
+        },
+      }),
+    ]);
+
+    const nowList = getListMovies(5, nowData.data.results);
+    const popularList = getListMovies(10, nowData.data.results);
+    const topList = getListMovies(5, nowData.data.results);
+
+    setNowMovies(nowList);
+    setPopularMovies(popularList);
+    setTopMovies(topList);
+  };
+
+  useEffect(() => {
+    getMovies();
+  }, []);
+
   return (
     <Container>
       <Header title="React Prime" />
@@ -37,26 +82,29 @@ function Home() {
         </BannerButton>
 
         <SliderMovies
+          keyExtrator={item => String(item.id)}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={[1, 2, 3, 4]}
-          renderItem={({item}) => <SliderItem />}
+          data={nowMovies}
+          renderItem={({item}) => <SliderItem data={item} />}
         />
 
         <Title>Populares</Title>
         <SliderMovies
+          keyExtrator={item => String(item.id)}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={[1, 2, 3, 4]}
-          renderItem={({item}) => <SliderItem />}
+          data={popularMovies}
+          renderItem={({item}) => <SliderItem data={item} />}
         />
 
         <Title>Mais votados</Title>
         <SliderMovies
+          keyExtrator={item => String(item.id)}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={[1, 2, 3, 4]}
-          renderItem={({item}) => <SliderItem />}
+          data={topMovies}
+          renderItem={({item}) => <SliderItem data={item} />}
         />
       </ScrollView>
     </Container>
