@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, ScrollView} from 'react-native';
+import {ActivityIndicator, ScrollView} from 'react-native';
 import {
   Container,
   SearchButton,
@@ -11,7 +11,7 @@ import {
   SliderMovies,
 } from './styles';
 import api, {key} from '../../services/api';
-import {getListMovies} from '../../utils/movies';
+import {getListMovies, gerarFilmeAleatorio} from '../../utils/movies';
 import Header from '../../components/Header';
 import SliderItem from '../../components/SliderItem';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,9 +20,13 @@ function Home() {
   const [nowMovies, setNowMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
+  const [movieBanner, setMovieBanner] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const getMovies = async () => {
     let isActive = true;
+    const ac = new AbortController();
+
     const [nowData, popularData, topData] = await Promise.all([
       api.get('/movie/now_playing', {
         params: {
@@ -47,18 +51,37 @@ function Home() {
       }),
     ]);
 
-    const nowList = getListMovies(5, nowData.data.results);
-    const popularList = getListMovies(10, nowData.data.results);
-    const topList = getListMovies(5, nowData.data.results);
+    if (isActive) {
+      const nowList = getListMovies(5, nowData.data.results);
+      const popularList = getListMovies(10, popularData.data.results);
+      const topList = getListMovies(5, topData.data.results);
+      setMovieBanner(
+        nowData.data.results[gerarFilmeAleatorio(nowData.data.results)],
+      );
 
-    setNowMovies(nowList);
-    setPopularMovies(popularList);
-    setTopMovies(topList);
+      setNowMovies(nowList);
+      setPopularMovies(popularList);
+      setTopMovies(topList);
+      setLoading(false);
+    }
+
+    return () => {
+      isActive = false;
+      ac.abort();
+    };
   };
 
   useEffect(() => {
     getMovies();
   }, []);
+
+  if (loading) {
+    return (
+      <Container>
+        <ActivityIndicator />
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -72,11 +95,13 @@ function Home() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Title>Em cartaz</Title>
-        <BannerButton activeOpacity={0.9} onPress={() => alert('TESTE')}>
+        <BannerButton
+          activeOpacity={0.9}
+          onPress={() => alert(movieBanner.overview)}>
           <Banner
             resizeMethod="resize"
             source={{
-              uri: 'https://i.pinimg.com/564x/ec/be/58/ecbe58f45eee2de4471b23233a792af1.jpg',
+              uri: `https://image.tmdb.org/t/p/original/${movieBanner.poster_path}`,
             }}
           />
         </BannerButton>
