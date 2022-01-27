@@ -15,6 +15,7 @@ import {getListMovies, gerarFilmeAleatorio} from '../../utils/movies';
 import Header from '../../components/Header';
 import SliderItem from '../../components/SliderItem';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useNavigation} from '@react-navigation/native';
 
 function Home() {
   const [nowMovies, setNowMovies] = useState([]);
@@ -22,6 +23,7 @@ function Home() {
   const [topMovies, setTopMovies] = useState([]);
   const [movieBanner, setMovieBanner] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   const getMovies = async () => {
     let isActive = true;
@@ -75,6 +77,10 @@ function Home() {
     getMovies();
   }, []);
 
+  const navigateDetailsPage = item => {
+    navigation.navigate('Details', {id: item.id});
+  };
+
   if (loading) {
     return (
       <Container>
@@ -97,7 +103,7 @@ function Home() {
         <Title>Em cartaz</Title>
         <BannerButton
           activeOpacity={0.9}
-          onPress={() => alert(movieBanner.overview)}>
+          onPress={() => navigateDetailsPage(movieBanner)}>
           <Banner
             resizeMethod="resize"
             source={{
@@ -111,7 +117,12 @@ function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           data={nowMovies}
-          renderItem={({item}) => <SliderItem data={item} />}
+          renderItem={({item}) => (
+            <SliderItem
+              data={item}
+              navigateDetailsPage={() => navigateDetailsPage(item)}
+            />
+          )}
         />
 
         <Title>Populares</Title>
@@ -120,7 +131,12 @@ function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           data={popularMovies}
-          renderItem={({item}) => <SliderItem data={item} />}
+          renderItem={({item}) => (
+            <SliderItem
+              data={item}
+              navigateDetailsPage={() => navigateDetailsPage(item)}
+            />
+          )}
         />
 
         <Title>Mais votados</Title>
@@ -129,7 +145,12 @@ function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           data={topMovies}
-          renderItem={({item}) => <SliderItem data={item} />}
+          renderItem={({item}) => (
+            <SliderItem
+              data={item}
+              navigateDetailsPage={() => navigateDetailsPage(item)}
+            />
+          )}
         />
       </ScrollView>
     </Container>

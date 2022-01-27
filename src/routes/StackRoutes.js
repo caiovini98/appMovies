@@ -1,7 +1,7 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Home from '../pages/Home';
-import Movies from '../pages/Movies';
+import Details from '../pages/Details';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,6 +13,14 @@ function StackRoutes() {
         component={Home}
         options={{
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Details"
+        component={Details}
+        options={{
+          headerShown: false,
+          title: 'Detalhe',
         }}
       />
     </Stack.Navigator>
