@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import {ScrollView, Linking} from 'react-native';
 import {
   Container,
   Header,
@@ -9,6 +10,7 @@ import {
   ContentArea,
   Rate,
   ListGenres,
+  Description,
 } from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -20,6 +22,20 @@ export default function Details() {
   const navigation = useNavigation();
   const route = useRoute();
   const [movie, setMovie] = useState();
+  const [openLink, setOpenLink] = useState(false);
+
+  const handleClick = () => {
+    if (openLink) {
+      Linking.canOpenURL(movie?.homepage).then(supported => {
+        if (supported) {
+          Linking.openURL(movie?.homepage);
+        } else {
+          console.log("Don't know how to open URI: " + movie?.homepage);
+        }
+      });
+      setOpenLink(false);
+    }
+  };
 
   const getMovies = async () => {
     let isActive = true;
@@ -65,7 +81,7 @@ export default function Details() {
         }}
         resizeMethod="resize"
       />
-      <ButtonLink>
+      <ButtonLink onPress={() => setOpenLink(true)}>
         <Icon name="link" size={24} color="white" />
       </ButtonLink>
       <Title numberOfLines={2}>{movie?.title}</Title>
@@ -89,6 +105,11 @@ export default function Details() {
         keyExtractor={item => String(item.id)}
         renderItem={({item}) => <Genres data={item} />}
       />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Title>Descrição</Title>
+        <Description>{movie?.overview}</Description>
+      </ScrollView>
+      {handleClick()}
     </Container>
   );
 }
