@@ -39,6 +39,19 @@ export const ButtonLink = styled.TouchableOpacity`
   border-radius: 35px;
   position: absolute;
   top: 305px;
+  right: 100px;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+`;
+
+export const ShareButton = styled.TouchableOpacity`
+  background-color: #FFF
+  width: 63px;
+  height: 63px;
+  border-radius: 35px;
+  position: absolute;
+  top: 305px;
   right: 15px;
   justify-content: center;
   align-items: center;

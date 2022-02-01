@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {ScrollView, Linking} from 'react-native';
+import {ScrollView, Linking, Share} from 'react-native';
 import {
   Container,
   Header,
   HeaderButton,
   Banner,
   ButtonLink,
+  ShareButton,
   Title,
   ContentArea,
   Rate,
@@ -34,6 +35,28 @@ export default function Details() {
         }
       });
       setOpenLink(false);
+    }
+  };
+
+  const shareLink = async () => {
+    try {
+      const result = await Share.share({
+        message: `O filme ${movie?.title} pode ser visualizado acessando ${movie?.homepage}`,
+        title: `${movie?.title}`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log(
+            'Compartilhado com o tipo de atividade de: ' + result.activityType,
+          );
+        } else {
+          console.log('Compartilhado');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Descartado');
+      }
+    } catch (error) {
+      console.log('Erro: ', error);
     }
   };
 
@@ -81,6 +104,9 @@ export default function Details() {
         }}
         resizeMethod="resize"
       />
+      <ShareButton onPress={shareLink}>
+        <Icon name="share-variant" size={24} color="black" />
+      </ShareButton>
       <ButtonLink onPress={() => setOpenLink(true)}>
         <Icon name="link" size={24} color="white" />
       </ButtonLink>
