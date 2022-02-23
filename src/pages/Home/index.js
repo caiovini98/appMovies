@@ -22,6 +22,7 @@ function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
   const [movieBanner, setMovieBanner] = useState({});
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
@@ -29,42 +30,46 @@ function Home() {
     let isActive = true;
     const ac = new AbortController();
 
-    const [nowData, popularData, topData] = await Promise.all([
-      api.get('/movie/now_playing', {
-        params: {
-          api_key: key,
-          language: 'pt-BR',
-          page: 1,
-        },
-      }),
-      api.get('/movie/popular', {
-        params: {
-          api_key: key,
-          language: 'pt-BR',
-          page: 1,
-        },
-      }),
-      api.get('/movie/top_rated', {
-        params: {
-          api_key: key,
-          language: 'pt-BR',
-          page: 1,
-        },
-      }),
-    ]);
+    try {
+      const [nowData, popularData, topData] = await Promise.all([
+        api.get('/movie/now_playing', {
+          params: {
+            api_key: key,
+            language: 'pt-BR',
+            page: 1,
+          },
+        }),
+        api.get('/movie/popular', {
+          params: {
+            api_key: key,
+            language: 'pt-BR',
+            page: 1,
+          },
+        }),
+        api.get('/movie/top_rated', {
+          params: {
+            api_key: key,
+            language: 'pt-BR',
+            page: 1,
+          },
+        }),
+      ]);
 
-    if (isActive) {
-      const nowList = getListMovies(5, nowData.data.results);
-      const popularList = getListMovies(10, popularData.data.results);
-      const topList = getListMovies(10, topData.data.results);
-      setMovieBanner(
-        nowData.data.results[gerarFilmeAleatorio(nowData.data.results)],
-      );
+      if (isActive) {
+        const nowList = getListMovies(5, nowData.data.results);
+        const popularList = getListMovies(10, popularData.data.results);
+        const topList = getListMovies(10, topData.data.results);
+        setMovieBanner(
+          nowData.data.results[gerarFilmeAleatorio(nowData.data.results)],
+        );
 
-      setNowMovies(nowList);
-      setPopularMovies(popularList);
-      setTopMovies(topList);
-      setLoading(false);
+        setNowMovies(nowList);
+        setPopularMovies(popularList);
+        setTopMovies(topList);
+        setLoading(false);
+      }
+    } catch (erro) {
+      console.log('Erro: ', erro);
     }
 
     return () => {
@@ -81,6 +86,15 @@ function Home() {
     navigation.navigate('Details', {id: item.id});
   };
 
+  const handleSearchMovie = () => {
+    if (input === '') {
+      alert('Por favor, preencha algo');
+      return;
+    }
+    navigation.navigate('Search', {name: input});
+    setInput('');
+  };
+
   if (loading) {
     return (
       <Container>
@@ -93,8 +107,13 @@ function Home() {
     <Container>
       <Header title="React Prime" />
       <SearchContainer>
-        <Input placeholder="Ex.: Vingadores" placeholderTextColor="#DDD" />
-        <SearchButton>
+        <Input
+          placeholder="Ex.: Vingadores"
+          placeholderTextColor="#DDD"
+          value={input}
+          onChangeText={text => setInput(text)}
+        />
+        <SearchButton onPress={handleSearchMovie}>
           <Icon name="magnify" size={30} color="#FFF" />
         </SearchButton>
       </SearchContainer>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import StackRoutes from './stackRoutes';
+import StackRoutes from './StackRoutes';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Movies from '../pages/Movies';
 
