@@ -18,6 +18,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import api, {key} from '../../services/api';
 import Stars from 'react-native-stars';
 import Genres from '../../components/Genres';
+import {saveMovie} from '../../utils/storage';
 
 export default function Details() {
   const navigation = useNavigation();
@@ -84,6 +85,11 @@ export default function Details() {
     };
   };
 
+  const favoriteMovie = async movie => {
+    await saveMovie('primeReact', movie);
+    alert('Filme salvo na sua lista!');
+  };
+
   useEffect(() => {
     getMovies();
   }, []);
@@ -94,8 +100,8 @@ export default function Details() {
         <HeaderButton onPress={() => navigation.goBack()}>
           <Icon name="keyboard-backspace" size={28} color="white" />
         </HeaderButton>
-        <HeaderButton>
-          <Icon name="bookmark" size={28} color="white" />
+        <HeaderButton onPress={() => favoriteMovie(movie)}>
+          <Icon name="bookmark-outline" size={28} color="white" />
         </HeaderButton>
       </Header>
       <Banner
