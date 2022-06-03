@@ -13,7 +13,7 @@ export async function saveMovie(key, movie) {
 
   const hasMovie = moviesStored.some(item => item.id === movie.id);
   if (hasMovie) {
-    console.log('Esse filme já existe.');
+    alert('Esse filme já existe.');
     return;
   }
 

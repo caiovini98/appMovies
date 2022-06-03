@@ -18,13 +18,14 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import api, {key} from '../../services/api';
 import Stars from 'react-native-stars';
 import Genres from '../../components/Genres';
-import {saveMovie} from '../../utils/storage';
+import {saveMovie, hasMovie, deleteMovie} from '../../utils/storage';
 
 export default function Details() {
   const navigation = useNavigation();
   const route = useRoute();
   const [movie, setMovie] = useState();
   const [openLink, setOpenLink] = useState(false);
+  const [favMovie, setFavMovie] = useState(false);
 
   const handleClick = () => {
     if (openLink) {
@@ -77,6 +78,8 @@ export default function Details() {
 
     if (isActive) {
       setMovie(response.data);
+      const isFavorite = await hasMovie(response.data);
+      setFavMovie(isFavorite);
     }
 
     return () => {
@@ -86,8 +89,15 @@ export default function Details() {
   };
 
   const favoriteMovie = async movie => {
-    await saveMovie('primeReact', movie);
-    alert('Filme salvo na sua lista!');
+    if (favMovie) {
+      await deleteMovie(movie?.id);
+      setFavMovie(false);
+      alert('Filme removido de sua lista.');
+    } else {
+      await saveMovie('primeReact', movie);
+      setFavMovie(true);
+      alert('Filme salvo na sua lista!');
+    }
   };
 
   useEffect(() => {
@@ -101,7 +111,11 @@ export default function Details() {
           <Icon name="keyboard-backspace" size={28} color="white" />
         </HeaderButton>
         <HeaderButton onPress={() => favoriteMovie(movie)}>
-          <Icon name="bookmark-outline" size={28} color="white" />
+          <Icon
+            name={favMovie ? 'bookmark' : 'bookmark-outline'}
+            size={28}
+            color="white"
+          />
         </HeaderButton>
       </Header>
       <Banner
